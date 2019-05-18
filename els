@@ -1,17 +1,21 @@
 #!/bin/bash
 #programmer: rich powell
-#els.sh extends ls -l command to include more recognized file flags for 
-#different file extensions.
+######################################################################
+#the els program extends the ls -l command to include more file type 
+#flags for various file extensions.                                               
+######################################################################
 
-
+# CUSTOM ERROR HANDLING
 catchError(){
-printf "Error!\nTry els --help for Help\nTry els -? to see File Extensions\n"
+	printf "Error!\nTry els --help for Help\nTry els -? to see File Extensions\n"
 }
 
+# TEST FOR -l OPTION 
 if (ls $* 2> /dev/null | tail -n 1 | awk '{print NF}' | grep -q "9") ; then 
 	ls $* | awk '{ 
 	
 	switch ($NF) {
+	# PRINT TOTAL LINE
 	case /[0-9]$/:
 		print $0
 		break
@@ -24,21 +28,21 @@ if (ls $* 2> /dev/null | tail -n 1 | awk '{print NF}' | grep -q "9") ; then
 	# (F) SWIFT FILE
 	case /[.]swift$/:
 		print $0 | "sed 's/^-/F/'"
-	  break
+		break
 
 	# (H) HTML FILE	
 	case /[.]html$/:
 		print $0 | "sed 's/^-/H/'"
 		break
 
-	# (K) KOTLIN FILE 	
-	case /[.]kot$/:
-		print $0 | "sed 's/^-/K/'"
-		break
-
 	# (J) JAVA FILE	
 	case /[.]java$/:
 		print $0 | "sed 's/^-/J/'"
+		break
+
+	# (K) KOTLIN FILE 	
+	case /[.]kot$/:
+		print $0 | "sed 's/^-/K/'"
 		break
 
 	# (P) PYTHON FILE
@@ -51,7 +55,7 @@ if (ls $* 2> /dev/null | tail -n 1 | awk '{print NF}' | grep -q "9") ; then
 		print $0 | "sed 's/^-/X/'"
 		break
 
-  # IGNORE DOT FILES
+	# IGNORE HIDDEN FILES
 	case /^[.]/:
 		break
 
@@ -66,12 +70,14 @@ if (ls $* 2> /dev/null | tail -n 1 | awk '{print NF}' | grep -q "9") ; then
 }
 }
 '
+# -? SHOW ALL DEFINED FILES EXTENSIONS
 elif [[  $1 == "-?" ]]; then
 cat <<EOF
 KNOWN FILE EXTENSTIONS
 ======================
 B-SHELLSCRIPT
 C-CLASS
+F-SWIFT
 H-HTML
 J-JAVA
 P-PYTHON
@@ -80,9 +86,11 @@ X-XML
 EOF
 
 else 
-if (ls $* 2>/dev/null); then
-	exit;	
-else
-	 catchError
-fi
+	# EXECUTE ALL OTHER LS COMMANDS
+	if (ls $* 2>/dev/null); then
+		exit;	
+	else
+	# CATCH ANY ERRORS
+		 catchError
+	fi
 fi
