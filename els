@@ -1,0 +1,88 @@
+#!/bin/bash
+#programmer: rich powell
+#els.sh extends ls -l command to include more recognized file flags for 
+#different file extensions.
+
+
+catchError(){
+printf "Error!\nTry els --help for Help\nTry els -? to see File Extensions\n"
+}
+
+if (ls $* 2> /dev/null | tail -n 1 | awk '{print NF}' | grep -q "9") ; then 
+	ls $* | awk '{ 
+	
+	switch ($NF) {
+	case /[0-9]$/:
+		print $0
+		break
+
+	# (C) CLASS FILE
+	case /[.]class$/:
+		print $0 | "sed 's/^-/C/'"
+		break 		
+
+	# (F) SWIFT FILE
+	case /[.]swift$/:
+		print $0 | "sed 's/^-/F/'"
+	  break
+
+	# (H) HTML FILE	
+	case /[.]html$/:
+		print $0 | "sed 's/^-/H/'"
+		break
+
+	# (K) KOTLIN FILE 	
+	case /[.]kot$/:
+		print $0 | "sed 's/^-/K/'"
+		break
+
+	# (J) JAVA FILE	
+	case /[.]java$/:
+		print $0 | "sed 's/^-/J/'"
+		break
+
+	# (P) PYTHON FILE
+	case /[.]py$/:
+		print $0 | "sed 's/^-/P/'"
+		break
+
+	# (X) XML FILE
+	case /[.]xml$/:
+		print $0 | "sed 's/^-/X/'"
+		break
+
+  # IGNORE DOT FILES
+	case /^[.]/:
+		break
+
+	default:
+	# TEST IF THE FILE IS A SHELL SCRIPT
+	if(system("file --mime-type -b " $NF "| grep -q 'text/x-shellscript'")==0)
+		print $0 | "sed 's/^-/B/'"
+  else
+	 # ANY NON LISTED TYPES
+	 print $0 				
+													 
+}
+}
+'
+elif [[  $1 == "-?" ]]; then
+cat <<EOF
+KNOWN FILE EXTENSTIONS
+======================
+B-SHELLSCRIPT
+C-CLASS
+H-HTML
+J-JAVA
+P-PYTHON
+K-KOTLIN
+X-XML
+EOF
+
+else 
+if (ls $* 2>/dev/null); then
+	exit;	
+else
+	 catchError
+fi
+fi
